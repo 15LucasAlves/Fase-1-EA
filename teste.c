@@ -18,6 +18,8 @@
     line = Linha do ficheiro
     maxRow = Numero maximo de linhas
     maxColumn = Numero maximo de colunas
+    choice = Escolha do utilizador
+    newValue = Novo valor a ser atribuido ao node
 */
 
 //Constituição do node da linked list
@@ -136,10 +138,73 @@ void printMatrixFromList() {
 }
 
 
+//Função para encontrar e trocar o valor de um node na linked list
+void changeNodeValue(Node* head, int row, int column, int newValue) {
+    //Percorrer a linked list para encontrar o node correspondente
+    Node* temp = head;
+    while (temp != NULL) {
+        //Se o node for encontrado, atualize o valor do node e retorne
+        if (temp->row == row && temp->column == column) {
+            temp->data = newValue;
+            return;
+        }
+        //Passar para o proximo node caso o node atual não seja o node que estamos procurando
+        temp = temp->next;
+    }
+    //Mensagem de erro caso o node não seja encontrado
+    printf("Valor não encontrado.\n");
+}
+
+
+void chooseWhatToDo() {
+    int choice;
+    int row;
+    int column;
+    int newValue;
+
+    //Imprimir a matriz sempre que o menu for exibido
+    printMatrixFromList();
+
+    //Menu para escolher o que fazer
+    printf("\n\n\nEscolha o que fazer:\n");
+    printf("1. Trocar o valor de um elemento\n\n");
+    printf("2. \n");
+    printf("3. Sair\n");
+    printf("Escolha: ");
+    scanf("%d", &choice);
+
+    //Chamar a função correspondente à escolha do utilizador
+    switch (choice) {
+        case 1:
+            //Perguntar ao utilizador qual valor ele quer trocar e qual valor ele quer atribuir
+            printf("Linha: ");
+            scanf("%d", &row);
+            printf("Coluna: ");
+            scanf("%d", &column);
+            printf("Novo valor: ");
+            scanf("%d", &newValue);
+            //Chamar a função para trocar o valor do node
+            changeNodeValue(head, row, column, newValue);
+            break;
+        case 2:
+
+            break;
+        case 3:
+            //Sair do programa
+            return;
+        default:
+            //Mensagem de erro caso a escolha seja inválida
+            printf("Escolha inválida.\n");
+    }
+    //Chamar a função novamente para que o utilizador possa escolher o que fazer a seguir
+    chooseWhatToDo();
+}
+
+
 //Função main
 int main() {
     loadMatrixToList("matriz.txt");
     //printListInOrder(head);
-    printMatrixFromList(); 
+    chooseWhatToDo();
     return 0;
 }
