@@ -118,6 +118,8 @@ void printMatrixFromList() {
         temp = temp->next;
     }
 
+    printf("\n");   
+
     // Agora, para cada linha e coluna, encontre o node correspondente e imprima-o
     for (int i = 0; i <= maxRow; i++) {
         for (int j = 0; j <= maxColumn; j++) {
@@ -166,12 +168,13 @@ void chooseWhatToDo() {
     printMatrixFromList();
 
     //Menu para escolher o que fazer
-    printf("\n\n\nEscolha o que fazer:\n");
-    printf("1. Trocar o valor de um elemento\n\n");
+    printf("\nEscolha o que fazer:\n");
+    printf("1. Trocar o valor de um elemento\n");
     printf("2. \n");
     printf("3. Sair\n");
     printf("Escolha: ");
     scanf("%d", &choice);
+    printf("\n");
 
     //Chamar a função correspondente à escolha do utilizador
     switch (choice) {
@@ -184,7 +187,8 @@ void chooseWhatToDo() {
             printf("Novo valor: ");
             scanf("%d", &newValue);
             //Chamar a função para trocar o valor do node
-            changeNodeValue(head, row, column, newValue);
+            //A linha e a coluna são subtraídas por 1 porque o utilizador começa a contar a partir de 1, mas o programa começa a contar a partir de 0
+            changeNodeValue(head, (row - 1), (column - 1), newValue);
             break;
         case 2:
 
