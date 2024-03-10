@@ -24,7 +24,6 @@
     newColumn = Nova coluna a ser adicionada
     rowIndex = Indice da linha a ser removida
     columnIndex = Indice da coluna a ser removida
-    prev = Node anterior ao node que queremos remover
     i = Variavel de controle para loops
 */
 
@@ -106,11 +105,12 @@ void printListInOrder(Node* node) {
 }
 
 
-//Função para imprimir a matriz a partir da linked list
-void printMatrixFromList() {
-    int maxRow = 0;
-    int maxColumn = 0;
+//Variaveis para armazenar o número máximo de linhas e colunas
+int maxRow = 0;
+int maxColumn = 0;
 
+//Função para imprimir a matriz a partir da linked list
+int printMatrixFromList() {
     // Primeiro, percorrer a linked list para encontrar o número máximo de linhas e colunas
     Node *temp = head;
     while (temp != NULL) {
@@ -143,6 +143,7 @@ void printMatrixFromList() {
         //Trocar de linha
         printf("\n");
     }
+    return maxRow, maxColumn;
 }
 
 
@@ -164,75 +165,24 @@ void changeNodeValue(Node* head, int row, int column, int newValue) {
 }
 
 
-Node* createNode(int value) {
-    Node* newNode = (Node*)malloc(sizeof(Node));
-    newNode->data = value;
-    newNode->next = NULL;
-    return newNode;
-}
+//Funçao para adicionar uma linha à matriz
+void addRow(int maxColumn, int maxRow) {
+    int newValueForNewLine;
+    //Perguntar ao usuario quais valores ele deseja adicionar à nova linha e adicionar os valores à linked list
+    for  (int i = 0; i <= maxColumn; i++) {
+        printf("Indique o %dº valor da nova linha: ", (i+1));
+        scanf("%d", &newValueForNewLine);
 
+        //Alocar espaço para o novo node
+        Node *newNode = (Node*) malloc(sizeof(Node));
 
-Node* createRow(int numColumns) {
-    Node* head = createNode(0);  // Cria o primeiro nó com valor 0
-    Node* temp = head;
-    for (int i = 1; i < numColumns; i++) {
-        temp->next = createNode(0);  // Cria os nós restantes com valor 0
-        temp = temp->next;
+        //Atribuir os valores ao novo node
+        newNode->data = newValueForNewLine; //Numero 
+        newNode->column = i; //Coluna
+        newNode->row = maxRow + 1; //Linha
+        newNode->next = head; //Apontar para o proximo node
+        head = newNode; //Atualizar a head para apontar para o novo node
     }
-    return head;
-}
-
-
-//Função para adicionar uma nova linha
-void addRow(Node** head, int numColumns) {
-    Node* newRow = createRow(numColumns);
-    Node* temp = *head;
-    while (temp->next != NULL) {
-        temp = temp->next;
-    }
-    temp->next = newRow;
-}
-
-
-void addColumn(Node** head, int newValue) {
-    Node* newColumn = createNode(newValue);
-    Node* temp = *head;
-    while (temp->next != NULL) {
-        temp = temp->next;
-    }
-    temp->next = newColumn;
-}
-
-
-void removeRow(Node** head, int rowIndex) {
-    Node* temp = *head;
-    Node* prev = NULL;
-    for (int i = 0; i < rowIndex; i++) {
-        prev = temp;
-        temp = temp->next;
-    }
-    if (prev != NULL) {
-        prev->next = temp->next;
-    } else {
-        *head = temp->next;
-    }
-    free(temp);
-}
-
-
-void removeColumn(Node** head, int columnIndex) {
-    Node* temp = *head;
-    Node* prev = NULL;
-    for (int i = 0; i < columnIndex; i++) {
-        prev = temp;
-        temp = temp->next;
-    }
-    if (prev != NULL) {
-        prev->next = temp->next;
-    } else {
-        *head = temp->next;
-    }
-    free(temp);
 }
 
 
@@ -249,11 +199,12 @@ void chooseWhatToDo() {
     //Menu para escolher o que fazer
     printf("\nEscolha o que fazer:\n");
     printf("1. Trocar o valor de um elemento\n");
-    printf("2. Adicionar uma lniha\n");
+    printf("2. Adicionar uma linha\n");
     printf("3. Adicionar uma coluna\n");
     printf("4. Remover uma linha\n");
     printf("5. Remover uma coluna\n");
-    printf("6. Sair\n");
+    printf("6. Calcular a soma máxima possível\n");
+    printf("7. Sair\n");
     printf("Escolha: ");
     scanf("%d", &choice);
     printf("\n");
@@ -264,35 +215,46 @@ void chooseWhatToDo() {
             //Perguntar ao utilizador qual valor ele quer trocar e qual valor ele quer atribuir
             printf("Linha: ");
             scanf("%d", &row);
+            if (row > maxRow || row < 1){
+                printf("Linha inválida.\n");
+                break;
+            }
+
             printf("Coluna: ");
             scanf("%d", &column);
+            if (column > maxColumn || column < 1){
+                printf("Coluna inválida.\n");
+                break;
+            }
+
             printf("Novo valor: ");
             scanf("%d", &newValue);
+            
             //Chamar a função para trocar o valor do node
             //A linha e a coluna são subtraídas por 1 porque o utilizador começa a contar a partir de 1, mas o programa começa a contar a partir de 0
             changeNodeValue(head, (row - 1), (column - 1), newValue);
             break;
         case 2:
             //Adicionar uma linha
-            addRow(&head, 3);
+            addRow(maxColumn, maxRow);
             break;
         case 3:
             //Adicionar uma coluna
-            addColumn(head, 3);
+
             break;
         case 4:
             //Remover uma linha
-            printf("Linha a ser removida: ");
-            scanf("%d", &row);
-            removeRow(&head, (row - 1));
+         
             break;
         case 5:
             //Remover uma coluna
-            printf("Coluna a ser removida: ");
-            scanf("%d", &column);
-            removeColumn(&head, column);
+            
             break;
         case 6:
+            //Cálculo da soma máxima possível
+            
+            break;
+        case 7:
             //Sair do programa
             return;
         default:
