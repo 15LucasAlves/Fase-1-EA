@@ -191,7 +191,8 @@ void chooseWhatToDo() {
     int choice;
     int row;
     int column;
-    int newValue;
+    char newValue[4]; // Array para armazenar até 3 dígitos e o caractere nulo '\0'
+    int newValueInt;
 
     //Imprimir a matriz sempre que o menu for exibido
     printMatrixFromList();
@@ -227,12 +228,19 @@ void chooseWhatToDo() {
                 break;
             }
 
-            printf("Novo valor: ");
-            scanf("%d", &newValue);
-            
-            //Chamar a função para trocar o valor do node
-            //A linha e a coluna são subtraídas por 1 porque o utilizador começa a contar a partir de 1, mas o programa começa a contar a partir de 0
-            changeNodeValue(head, (row - 1), (column - 1), newValue);
+            printf("Novo valor até 3 digitos: ");
+            fgets(newValue, sizeof(newValue), stdin);
+            // Remover o '\n' que fgets adiciona no final da string
+            newValue[strcspn(newValue, "\n")] = 0;
+            if (atoi(newValue) < 0 || atoi(newValue) > 999){
+                printf("Valor inválido.\n");
+                break;
+            }
+            newValueInt = atoi(newValue);
+
+            //A linha e a coluna são subtraídas por 1 porque o utilizador começa a contar a partir de 1, 
+            //mas o programa começa a contar a partir de 0
+            changeNodeValue(head, (row - 1), (column - 1), newValueInt);
             break;
         case 2:
             //Adicionar uma linha
