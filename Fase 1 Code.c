@@ -20,6 +20,12 @@
     maxColumn = Numero maximo de colunas
     choice = Escolha do utilizador
     newValue = Novo valor a ser atribuido ao node
+    newRow = Nova linha a ser adicionada
+    newColumn = Nova coluna a ser adicionada
+    rowIndex = Indice da linha a ser removida
+    columnIndex = Indice da coluna a ser removida
+    prev = Node anterior ao node que queremos remover
+    i = Variavel de controle para loops
 */
 
 //Constituição do node da linked list
@@ -158,6 +164,79 @@ void changeNodeValue(Node* head, int row, int column, int newValue) {
 }
 
 
+Node* createNode(int value) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->data = value;
+    newNode->next = NULL;
+    return newNode;
+}
+
+
+Node* createRow(int numColumns) {
+    Node* head = createNode(0);  // Cria o primeiro nó com valor 0
+    Node* temp = head;
+    for (int i = 1; i < numColumns; i++) {
+        temp->next = createNode(0);  // Cria os nós restantes com valor 0
+        temp = temp->next;
+    }
+    return head;
+}
+
+
+//Função para adicionar uma nova linha
+void addRow(Node** head, int numColumns) {
+    Node* newRow = createRow(numColumns);
+    Node* temp = *head;
+    while (temp->next != NULL) {
+        temp = temp->next;
+    }
+    temp->next = newRow;
+}
+
+
+void addColumn(Node** head, int newValue) {
+    Node* newColumn = createNode(newValue);
+    Node* temp = *head;
+    while (temp->next != NULL) {
+        temp = temp->next;
+    }
+    temp->next = newColumn;
+}
+
+
+void removeRow(Node** head, int rowIndex) {
+    Node* temp = *head;
+    Node* prev = NULL;
+    for (int i = 0; i < rowIndex; i++) {
+        prev = temp;
+        temp = temp->next;
+    }
+    if (prev != NULL) {
+        prev->next = temp->next;
+    } else {
+        *head = temp->next;
+    }
+    free(temp);
+}
+
+
+void removeColumn(Node** head, int columnIndex) {
+    Node* temp = *head;
+    Node* prev = NULL;
+    for (int i = 0; i < columnIndex; i++) {
+        prev = temp;
+        temp = temp->next;
+    }
+    if (prev != NULL) {
+        prev->next = temp->next;
+    } else {
+        *head = temp->next;
+    }
+    free(temp);
+}
+
+
+//Função para escolher o que fazer
 void chooseWhatToDo() {
     int choice;
     int row;
@@ -170,8 +249,11 @@ void chooseWhatToDo() {
     //Menu para escolher o que fazer
     printf("\nEscolha o que fazer:\n");
     printf("1. Trocar o valor de um elemento\n");
-    printf("2. \n");
-    printf("3. Sair\n");
+    printf("2. Adicionar uma lniha\n");
+    printf("3. Adicionar uma coluna\n");
+    printf("4. Remover uma linha\n");
+    printf("5. Remover uma coluna\n");
+    printf("6. Sair\n");
     printf("Escolha: ");
     scanf("%d", &choice);
     printf("\n");
@@ -191,9 +273,26 @@ void chooseWhatToDo() {
             changeNodeValue(head, (row - 1), (column - 1), newValue);
             break;
         case 2:
-
+            //Adicionar uma linha
+            addRow(&head, 3);
             break;
         case 3:
+            //Adicionar uma coluna
+            addColumn(head, 3);
+            break;
+        case 4:
+            //Remover uma linha
+            printf("Linha a ser removida: ");
+            scanf("%d", &row);
+            removeRow(&head, (row - 1));
+            break;
+        case 5:
+            //Remover uma coluna
+            printf("Coluna a ser removida: ");
+            scanf("%d", &column);
+            removeColumn(&head, column);
+            break;
+        case 6:
             //Sair do programa
             return;
         default:
