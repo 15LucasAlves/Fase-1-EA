@@ -1,8 +1,9 @@
-// Lucas Alves - Projeto 1 - Estruturas de dados avançadas 
+//Lucas Alves - Projeto 1 - Estruturas de dados avançadas 
 
 //Bibliotecas
 #include<stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 
 /*Explicação de algumas variaveis
@@ -111,7 +112,7 @@ int maxColumn = 0;
 
 //Função para imprimir a matriz a partir da linked list
 int printMatrixFromList() {
-    // Primeiro, percorrer a linked list para encontrar o número máximo de linhas e colunas
+    //Primeiro, percorrer a linked list para encontrar o número máximo de linhas e colunas
     Node *temp = head;
     while (temp != NULL) {
         //Se a linha ou coluna atual for maior que a linha ou coluna máxima, atualize a linha ou coluna máxima
@@ -126,11 +127,11 @@ int printMatrixFromList() {
 
     printf("\n");   
 
-    // Agora, para cada linha e coluna, encontre o node correspondente e imprima-o
+    //Agora, para cada linha e coluna, encontre o node correspondente e imprima-o
     for (int i = 0; i <= maxRow; i++) {
         for (int j = 0; j <= maxColumn; j++) {
             temp = head;
-            // Percorrer a linked list para encontrar o node correspondente
+            //Percorrer a linked list para encontrar o node correspondente
             while (temp != NULL) {
                 if (temp->row == i && temp->column == j) {
                     //Imprimir o valor do node
@@ -186,13 +187,115 @@ void addRow(int maxColumn, int maxRow) {
 }
 
 
+//Função para adicionar uma coluna à matriz
+void addColumn(int maxColumn, int maxRow) {
+    int newValueForNewColumn;
+    //Perguntar ao usuario quais valores ele deseja adicionar à nova coluna e adicionar os valores à linked list
+    for  (int i = 0; i <= maxRow; i++) {
+        printf("Indique o %dº valor da nova coluna: ", (i+1));
+        scanf("%d", &newValueForNewColumn);
+
+        //Alocar espaço para o novo node
+        Node *newNode = (Node*) malloc(sizeof(Node));
+
+        //Atribuir os valores ao novo node
+        newNode->data = newValueForNewColumn; //Numero 
+        newNode->column = maxColumn + 1; //Coluna
+        newNode->row = i; //Linha
+        newNode->next = head; //Apontar para o proximo node
+        head = newNode; //Atualizar a head para apontar para o novo node
+    }
+}
+
+
+//Função para remover uma linha da matriz à escolha do utilizador
+void removeRow(int rowIndex) {
+    Node* temp = head;
+    Node* prev = NULL;
+
+    //Percorrer a lista ligada
+    while (temp != NULL) {
+        //Se o node atual deve ser removido
+        if (temp->row == rowIndex) {
+            //Se é o node da head
+            if (temp == head) {
+                head = temp->next;
+            } else {
+                //Se não é o node da head
+                prev->next = temp->next;
+            }
+
+            Node* nodeToRemove = temp;
+            temp = temp->next;
+
+            free(nodeToRemove);
+        } else {
+            //Se o node atual não deve ser removido
+            prev = temp;
+            temp = temp->next;
+        }
+    }
+
+    //Atualizar os índices das linhas
+    while (temp != NULL) {
+        if (temp->row > rowIndex) {
+            temp->row = temp->row - 1;
+        }
+        temp = temp->next;
+    }
+
+    //Atualizar o número máximo de linhas
+    maxRow--;
+}
+
+
+//Função para remover uma coluna da matriz à escolha do utilizador
+void removeColumn(int columnIndex) {
+    Node* temp = head;
+    Node* prev = NULL;
+
+    //Percorrer a lista ligada
+    while (temp != NULL) {
+        //Se o node atual deve ser removido
+        if (temp->column == columnIndex) {
+            //Se é o node da head
+            if (temp == head) {
+                head = temp->next;
+            } else {
+                //Se não é o node da head
+                prev->next = temp->next;
+            }
+
+            Node* nodeToRemove = temp;
+            temp = temp->next;
+
+            free(nodeToRemove);
+        } else {
+            //Se o node atual não deve ser removido
+            prev = temp;
+            temp = temp->next;
+        }
+    }
+
+    //Atualizar os índices das colunas
+    while (temp != NULL) {
+        if (temp->column > columnIndex) {
+            temp->column = temp->column - 1;
+        }
+        temp = temp->next;
+    }
+
+    //Atualizar o número máximo de colunas
+    maxColumn--;
+}
+
+
 //Função para escolher o que fazer
 void chooseWhatToDo() {
     int choice;
     int row;
     int column;
-    char newValue[4]; // Array para armazenar até 3 dígitos e o caractere nulo '\0'
-    int newValueInt;
+    int newValue;
 
     //Imprimir a matriz sempre que o menu for exibido
     printMatrixFromList();
@@ -228,19 +331,12 @@ void chooseWhatToDo() {
                 break;
             }
 
-            printf("Novo valor até 3 digitos: ");
-            fgets(newValue, sizeof(newValue), stdin);
-            // Remover o '\n' que fgets adiciona no final da string
-            newValue[strcspn(newValue, "\n")] = 0;
-            if (atoi(newValue) < 0 || atoi(newValue) > 999){
-                printf("Valor inválido.\n");
-                break;
-            }
-            newValueInt = atoi(newValue);
+            printf("Novo valor: ");
+            scanf("%d", &newValue);
 
             //A linha e a coluna são subtraídas por 1 porque o utilizador começa a contar a partir de 1, 
             //mas o programa começa a contar a partir de 0
-            changeNodeValue(head, (row - 1), (column - 1), newValueInt);
+            changeNodeValue(head, (row - 1), (column - 1), newValue);
             break;
         case 2:
             //Adicionar uma linha
@@ -248,15 +344,29 @@ void chooseWhatToDo() {
             break;
         case 3:
             //Adicionar uma coluna
-
+            addColumn(maxColumn, maxRow);
             break;
         case 4:
             //Remover uma linha
-         
+            printf("Escolha a linha que deseja remover: ");
+            scanf("%d", &row);
+
+            if (row - 1 > maxRow || row < 1){
+                printf("Linha inválida.\n");
+                break;
+            }
+            removeRow(row - 1);
             break;
         case 5:
             //Remover uma coluna
-            
+            printf("Escolha a linha que deseja remover: ");
+            scanf("%d", &column);
+
+            if (column - 1 > maxColumn || column < 1){
+                printf("Coluna inválida.\n");
+                break;
+            }
+            removeColumn(column - 1);
             break;
         case 6:
             //Cálculo da soma máxima possível
