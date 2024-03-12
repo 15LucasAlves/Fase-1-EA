@@ -320,6 +320,23 @@ void removeColumn(int columnIndex) {
 }
 
 
+//Função do assingment problem
+void assingmentProblem(){
+    //https://cbom.atozmath.com/example/CBOM/Assignment.aspx?q=hm&q1=MAX
+    //O metodo utilizado para resolver o problema de atribuição foi o hungarian method for maximization
+
+    /*
+    Breve explicação de como o hungarian method funciona
+
+    Nota: O algoritmo assume que o número de linhas é igual ao número de colunas
+          Se for o caso for o contrario, adicionar linhas ou colunas com valores Nulos
+
+    1. Subtrair o maior valor da matriz por todos os valores ex: 5 - 3 = 2 -> linha 1 coluna 1, 5 - 4 = 1 -> linha 1 coluna 2, 5 - 2 = 3 -> linha 2 coluna 1, 5 - 1 = 4 -> linha 2 coluna 2
+    2. 
+    */
+
+}
+
 //Função para escolher o que fazer
 void chooseWhatToDo() {
     int choice;
@@ -419,7 +436,7 @@ void chooseWhatToDo() {
             break;
         case 6:
             //Cálculo da soma máxima possível
-            
+            assingmentProblem();
             break;
         case 7:
             //Sair do programa
