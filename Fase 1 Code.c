@@ -28,7 +28,7 @@
     columnIndex = Indice da coluna a ser removida
     i = Variavel de controle para loops
     j = Variavel de controle para loops
-    reasing = Node temporario para percorrer a linked list
+    reassing = Node temporario para percorrer a linked list
 */
 
 //Constituição do node da linked list
@@ -262,14 +262,14 @@ void removeRow(int rowIndex) {
         }
     }
 
-    Node* reasing = head;
+    Node* reassing = head;
 
     //Atualizar os índices das linhas
-    while (reasing != NULL) {
-        if (reasing->row >= rowIndex) {
-            reasing->row = reasing->row - 1;
+    while (reassing != NULL) {
+        if (reassing->row >= rowIndex) {
+            reassing->row = reassing->row - 1;
         }
-        reasing = reasing->next;
+        reassing = reassing->next;
     }
 
     //Atualizar o número máximo de linhas
@@ -305,14 +305,14 @@ void removeColumn(int columnIndex) {
         }
     }
 
-    Node* reasing = head;
+    Node* reassing = head;
 
     //Atualizar os índices das colunas
-    while (reasing != NULL) {
-        if (reasing->column >= columnIndex) {
-            reasing->column = reasing->column - 1;
+    while (reassing != NULL) {
+        if (reassing->column >= columnIndex) {
+            reassing->column = reassing->column - 1;
         }
-        reasing = reasing->next;
+        reassing = reassing->next;
     }
 
     //Atualizar o número máximo de colunas
