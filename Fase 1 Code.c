@@ -483,7 +483,19 @@ int findZeros(){
     bool inRow = true;
     int numberOfCuts = 0;
 
-    do{
+    //limpar os cortes e doubleCortes
+    temp = head;
+    while (temp != NULL){
+        temp->crossed = false;
+        temp->doubleCrossed = false;
+        temp = temp->next;
+    }
+
+    do{    
+        maxZerosFound = 0;
+        index = -1;
+        inRow = true;
+
         for (int i = 0; i <= maxRow; i++)
         {
             //Reinicar variaveis
@@ -504,6 +516,7 @@ int findZeros(){
             if (zerosFound > maxZerosFound){
                 maxZerosFound = zerosFound;
                 index = i;
+                inRow = true;
             }
         }
 
@@ -531,47 +544,42 @@ int findZeros(){
             }
         }
 
-        /*
-        if(inRow){
-            printf("Linha com mais zeros: %d\n", index);
-        }
-        else{
-            printf("Coluna com mais zeros: %d\n", index);
-        }
-
-        printf("Número de zeros: %d\n", maxZerosFound);
-        */
-
-        temp = head;
-
-        while(temp != NULL){
-            //Se o maior numero de zeros for em linha
-            if(inRow){
-                //Se o node atual for da linha com mais zeros, cortar o node
-                if(temp->row == index)
-                    //Se o node já foi cortado, cortar novamente
-                    if (temp->crossed == true)
-                        temp->doubleCrossed = true;
-                    else
-                        temp->crossed = true;
+       if (index != -1)
+       {
+            temp = head;
+            while(temp != NULL){
+                //Se o maior numero de zeros for em linha
+                if(inRow){
+                    //Se o node atual for da linha com mais zeros, cortar o node
+                    if(temp->row == index){
+                        //Se o node já foi cortado, cortar novamente
+                        if (temp->crossed == true)
+                            temp->doubleCrossed = true;
+                        else
+                            temp->crossed = true;
+                    }        
+                }
+                //Se o maior numero de zeros for em coluna
+                else{
+                    //Se o node atual for da coluna com mais zeros, cortar o node
+                    if(temp->column == index){
+                        //Se o node já foi cortado, cortar novamente
+                        if (temp->crossed == true)
+                            temp->doubleCrossed = true;
+                        else
+                            temp->crossed = true;
+                    }
+                }
+                temp = temp->next;   
             }
-            //Se o maior numero de zeros for em coluna
-            else{
-                //Se o node atual for da coluna com mais zeros, cortar o node
-                if(temp->column == index){
-                    //Se o node já foi cortado, cortar novamente
-                    if (temp->crossed == true)
-                        temp->doubleCrossed = true;
-                    else
-                        temp->crossed = true;
-            }
-            temp = temp->next;
-            }   
         }
 
-        numberOfCuts++;
+        if (maxZerosFound > 0)
+            numberOfCuts++;
+     
+
     //Repetir até que todos os zeros estejam cortados
-    }while(zerosFound != 0);
+    }while(maxZerosFound != 0);
 
     //Retornar o número de cortes
     return numberOfCuts;
@@ -647,12 +655,15 @@ void assingmentProblem(int maxRow, int maxColumn){
     subtractMinFromRow(maxRow);
     subtractMinFromColumn(maxColumn);
 
-  
-    numberOfCuts = findZeros();
-    subtractAndAddMin();
-
-    printf("numberOfCuts: %d\n", numberOfCuts);
+    //do
     
+    while (numberOfCuts != maxRow+1){
+        numberOfCuts = findZeros();
+        subtractAndAddMin();
+        printf("FIM numberOfCuts: %d\n", numberOfCuts);
+
+    } 
+     
 
 }
 
