@@ -4,12 +4,16 @@
 #include<stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 
 /*Explicação de algumas variaveis
     data = Numero da matriz
     column = Coluna da matriz
     row = Linha da matriz
+    dataCalc = Valor calculado para o problema de atribuição
+    crossed = Variavel para verificar se o node foi cortado
+    doubleCrossed = Variavel para verificar se o node foi cortado duas vezes
     head = Apontador para o 1º node da linked list
     next = Apontador para o proximo node
     newNode = Novo node a ser adicionado na linked list
@@ -37,6 +41,9 @@ typedef struct Node {
     int data;
     int column;
     int row;
+    int dataCalc;
+    bool crossed;
+    bool doubleCrossed;
 
     struct Node* next;
 } Node;
@@ -78,6 +85,9 @@ void loadMatrixToList(char *filename) {
             newNode->data = atoi(token); //Numero 
             newNode->column = column; //Coluna
             newNode->row = row; //Linha
+            newNode->dataCalc = 0; //Valor calculado para o problema de atribuição
+            newNode->crossed = false; //Variavel para verificar se o node foi cortado
+            newNode->doubleCrossed = false; //Variavel para verificar se o node foi cortado duas vezes
             newNode->next = head; //Apontar para o proximo node
             head = newNode; //Atualizar a head para apontar para o novo node
 
@@ -104,7 +114,7 @@ void printListInOrder(Node* node) {
     //Basicamente, chama continuamente a função para o proximo node até que o node seja NULL
     //Quando o node for NULL, a função retornará para o node anterior e imprimirá o valor do node
     printListInOrder(node->next);
-    printf("Data: %d, Column: %d, Row: %d\n", node->data, node->column, node->row);
+    printf("Data: %d, Column: %d, Row: %d, DataCalc:%d, isCrossed:%d ,isdoubleCrossed:%d\n", node->data, node->column, node->row, node->dataCalc, node->crossed, node->doubleCrossed);
 }
 
 
@@ -172,6 +182,7 @@ void changeNodeValue(Node* head, int row, int column, int newValue) {
 void addRow(int maxColumn, int maxRow, int rowIndex) {
     int newValueForNewLine;
     Node *temp = head;
+
     //Perguntar ao usuario quais valores ele deseja adicionar à nova linha e adicionar os valores à linked list
     for  (int i = 0; i <= maxColumn; i++) {
         printf("Indique o %dº valor da nova linha: ", (i+1));
@@ -184,6 +195,9 @@ void addRow(int maxColumn, int maxRow, int rowIndex) {
         newNode->data = newValueForNewLine; //Numero 
         newNode->column = i; //Coluna
         newNode->row = rowIndex; //Linha
+        newNode->dataCalc = 0; //Valor calculado para o problema de atribuição
+        newNode->crossed = false; //Variavel para verificar se o node foi cortado
+        newNode->doubleCrossed = false; //Variavel para verificar se o node foi cortado duas vezes
         newNode->next = head; //Apontar para o proximo node
         head = newNode; //Atualizar a head para apontar para o novo node
     }
@@ -205,6 +219,7 @@ void addRow(int maxColumn, int maxRow, int rowIndex) {
 void addColumn(int maxColumn, int maxRow, int columnIndex) {
     int newValueForNewColumn;
     Node *temp = head;
+    
     //Perguntar ao usuario quais valores ele deseja adicionar à nova coluna e adicionar os valores à linked list
     for  (int i = 0; i <= maxRow; i++) {
         printf("Indique o %dº valor da nova coluna: ", (i+1));
@@ -217,6 +232,9 @@ void addColumn(int maxColumn, int maxRow, int columnIndex) {
         newNode->data = newValueForNewColumn; //Numero 
         newNode->column = columnIndex; //Coluna
         newNode->row = i; //Linha
+        newNode->dataCalc = 0; //Valor calculado para o problema de atribuição
+        newNode->crossed = false; //Variavel para verificar se o node foi cortado
+        newNode->doubleCrossed = false; //Variavel para verificar se o node foi cortado duas vezes
         newNode->next = head; //Apontar para o proximo node
         head = newNode; //Atualizar a head para apontar para o novo node
     }
@@ -320,20 +338,321 @@ void removeColumn(int columnIndex) {
 }
 
 
+//Igualar o valor para calculo ao valor real da matriz
+void equalizeDataCalcToData(){
+    Node *temp = head;
+
+    //Percorrer a linked list para igualar o valor para calculo ao valor real da matriz
+    while (temp != NULL) {
+        temp->dataCalc = temp->data;
+        temp = temp->next;
+    }
+}
+
+
+//Função para encontrar o maior valor da matriz
+int findMaxValue(){
+    Node *temp = head;
+    int maxValue = 0;
+
+    //Percorrer a linked list para encontrar o maior valor
+    while (temp != NULL) {
+        //Se o valor do node atual for maior que o valor máximo, atualize o valor máximo
+        if (temp->dataCalc > maxValue) {
+            maxValue = temp->dataCalc;
+        }
+        //Passar para o proximo node
+        temp = temp->next;
+    }
+
+    //Retornar o valor máximo
+    return maxValue;
+}
+
+
+//Função para subtrair o maior valor da matriz por todos os valores
+void subtractValueFromAll(int maxValue){
+    Node *temp = head;
+
+    //Percorrer a linked list para subtrair o valor de todos os nodes
+    while (temp != NULL) {
+        temp->dataCalc = maxValue - temp->dataCalc;
+        temp = temp->next;
+    }
+}
+
+
+//Função para encontrar o menor valor de uma linha e subtrair de todos os valores da linha
+void subtractMinFromRow(int maxRow){
+    Node *temp = head;
+    int min;
+    bool firstTime;
+
+    //Percorrer a linked list para encontrar o menor valor de cada linha
+    for (int i = 0; i <= maxRow; i++) {
+        //Variavel para verificar se é a primeira vez que a linha está a ser percorrida
+        firstTime = true;
+
+        //Retornar ao inicio da linked list
+        temp = head;
+
+        //Se o node atual for da mesma linha que o node anterior e o valor do node atual for menor que o valor mínimo, atualize o valor mínimo
+        while (temp != NULL) {
+            if (temp->row == i) {
+
+                //Atribuir um valor inicial para o min da linha
+                if(firstTime){
+                    min = temp->dataCalc;
+                    firstTime = false;
+                }
+
+                //Se o valor do node atual for menor que o valor mínimo, atualize o valor mínimo
+                if (temp->dataCalc < min) {
+                    min = temp->dataCalc;
+                }
+            }
+            temp = temp->next;
+        }
+        
+        //Retornar ao inicio da linked list
+        temp = head;
+
+        //Subtrair o valor mínimo de todos os nodes da linha
+        while (temp != NULL) {
+            if (temp->row == i) {
+                temp->dataCalc = temp->dataCalc - min;
+            }
+            temp = temp->next;
+        }
+    }
+}
+
+
+//Função para encontrar o menor valor de uma coluna e subtrair de todos os valores da coluna
+void subtractMinFromColumn(int maxColumn){
+    Node *temp = head;
+    int min;
+    bool firstTime;
+
+    //Percorrer a linked list para encontrar o menor valor de cada coluna
+    for (int i = 0; i <= maxColumn; i++) {
+        //Variavel para verificar se é a primeira vez que a coluna está a ser percorrida
+        firstTime = true;
+
+        //Retornar ao inicio da linked list
+        temp = head;
+
+        //Se o node atual for da mesma coluna que o node anterior e o valor do node atual for menor que o valor mínimo, atualize o valor mínimo
+        while (temp != NULL) {
+            if (temp->column == i) {
+
+                //Atribuir um valor inicial para o min da coluna
+                if(firstTime) {
+                    min = temp->dataCalc;
+                    firstTime = false;
+                }
+            
+                //Se o valor do node atual for menor que o valor mínimo, atualize o valor mínimo
+                if (temp->dataCalc < min) {
+                    min = temp->dataCalc;
+                }
+            }
+            temp = temp->next;
+        }
+        
+        //Retornar ao inicio da linked list
+        temp = head;
+
+        //Subtrair o valor mínimo de todos os nodes da coluna
+        while (temp != NULL) {
+            if (temp->column == i) {
+                temp->dataCalc = temp->dataCalc - min;
+            }
+            temp = temp->next;
+        }
+    }
+}
+
+
+//Função para percorrer as linhas e colunas para encontrar zeros
+int findZeros(){
+    Node *temp;
+    int zerosFound;
+    int maxZerosFound = 0;
+    int index = -1;
+    bool inRow = true;
+    int numberOfCuts = 0;
+
+    do{
+        for (int i = 0; i <= maxRow; i++)
+        {
+            //Reinicar variaveis
+            zerosFound = 0;
+            temp = head;
+
+            while (temp != NULL){
+                if (temp->row == i){
+                    if (temp->dataCalc == 0 && !temp->crossed){
+                        zerosFound++;
+                    }
+                }
+                temp = temp->next;
+            }
+
+            //Se o número de zeros encontrados for maior que o número máximo de zeros encontrados, 
+            //atualize o número máximo de zeros encontrados e o índice da linha
+            if (zerosFound > maxZerosFound){
+                maxZerosFound = zerosFound;
+                index = i;
+            }
+        }
+
+        for (int i = 0; i <= maxColumn; i++)
+        {
+            //Reinicar variaveis
+            zerosFound = 0;
+            temp = head;
+
+            while (temp != NULL){
+                if (temp->column == i){
+                    if (temp->dataCalc == 0 && !temp->crossed){
+                        zerosFound++;
+                    }
+                }
+                temp = temp->next;
+            }
+
+            //Se o número de zeros encontrados for maior que o número máximo de zeros encontrados, 
+            //atualize o número máximo de zeros encontrados e o índice da coluna
+            if (zerosFound > maxZerosFound){
+                maxZerosFound = zerosFound;
+                index = i;
+                inRow = false;
+            }
+        }
+
+        /*
+        if(inRow){
+            printf("Linha com mais zeros: %d\n", index);
+        }
+        else{
+            printf("Coluna com mais zeros: %d\n", index);
+        }
+
+        printf("Número de zeros: %d\n", maxZerosFound);
+        */
+
+        temp = head;
+
+        while(temp != NULL){
+            //Se o maior numero de zeros for em linha
+            if(inRow){
+                //Se o node atual for da linha com mais zeros, cortar o node
+                if(temp->row == index)
+                    //Se o node já foi cortado, cortar novamente
+                    if (temp->crossed == true)
+                        temp->doubleCrossed = true;
+                    else
+                        temp->crossed = true;
+            }
+            //Se o maior numero de zeros for em coluna
+            else{
+                //Se o node atual for da coluna com mais zeros, cortar o node
+                if(temp->column == index){
+                    //Se o node já foi cortado, cortar novamente
+                    if (temp->crossed == true)
+                        temp->doubleCrossed = true;
+                    else
+                        temp->crossed = true;
+            }
+            temp = temp->next;
+            }   
+        }
+
+        numberOfCuts++;
+    //Repetir até que todos os zeros estejam cortados
+    }while(zerosFound != 0);
+
+    //Retornar o número de cortes
+    return numberOfCuts;
+}
+
+
+//Função para procurar o menor numero dos numeros não cortados e subtrair de todos os valores não cortados e adicionar a todos os valores cortados duas vezes
+void subtractAndAddMin(){
+    Node *temp = head;
+    int minValue;
+    bool firstTime = true;
+
+    //Percorrer a linked list para encontrar o maior valor
+    while (temp != NULL) { 
+        //Atribuir um valor inicial para o min da linha
+        if(firstTime && temp->crossed == false){
+            minValue = temp->dataCalc;
+            firstTime = false;
+        }
+
+        //Se o valor do node atual for menor que o valor minimo, atualize o valor minimo
+        if (temp->dataCalc < minValue && temp->crossed == false) {
+            minValue = temp->dataCalc;
+        }
+        //Passar para o proximo node
+        temp = temp->next;
+    }
+
+    temp = head;
+
+    while (temp != NULL) {
+        //Subtrair o valor mínimo de todos os nodes não cortados
+        if (temp->crossed == false) {
+            temp->dataCalc = temp->dataCalc - minValue;
+        }
+        //Adicionar o valor mínimo a todos os nodes cortados duas vezes
+        if (temp->doubleCrossed == true) {
+            temp->dataCalc = temp->dataCalc + minValue;
+        }
+        //Passar para o proximo node
+        temp = temp->next;
+    } 
+}
+
+
 //Função do assingment problem
-void assingmentProblem(){
+void assingmentProblem(int maxRow, int maxColumn){
     //https://cbom.atozmath.com/example/CBOM/Assignment.aspx?q=hm&q1=MAX
-    //O metodo utilizado para resolver o problema de atribuição foi o hungarian method for maximization
+    //O metodo utilizado para resolver o problema de atribuição foi o hungarian method para maximização
 
     /*
-    Breve explicação de como o hungarian method funciona
+    Breve explicação de como o hungarian method para maximização funciona
 
     Nota: O algoritmo assume que o número de linhas é igual ao número de colunas
           Se for o caso for o contrario, adicionar linhas ou colunas com valores Nulos
 
     1. Subtrair o maior valor da matriz por todos os valores ex: 5 - 3 = 2 -> linha 1 coluna 1, 5 - 4 = 1 -> linha 1 coluna 2, 5 - 2 = 3 -> linha 2 coluna 1, 5 - 1 = 4 -> linha 2 coluna 2
-    2. 
+    2. Em cada linha, encontrar o menor valor e subtrair de todos os valores da linha
+    3. Em cada coluna, encontrar o menor valor e subtrair de todos os valores da coluna
+    4. Encontrar o menor número de linhas e colunas que cubram todos os zeros da matriz
+    5. Se o número de cortes for igual ao número de linhas, o algoritmo termina
+    6. Se o número de cortes for menor que o número de linhas, encontrar o menor valor da matriz que não foi cortado e subtrair de todos os valores não cortados
+    7. Repetir os passos 4, 5 e 6 até que o número de cortes seja igual ao número de linhas
+    8. O resultado final é a soma dos valores da matriz que estão na mesma linha ou coluna que o valor 0
     */
+    int numberOfCuts = 0;
+
+    equalizeDataCalcToData();
+
+    int maxValue = findMaxValue();
+
+    subtractValueFromAll(maxValue);
+    subtractMinFromRow(maxRow);
+    subtractMinFromColumn(maxColumn);
+
+  
+    numberOfCuts = findZeros();
+    subtractAndAddMin();
+
+    printf("numberOfCuts: %d\n", numberOfCuts);
+    
 
 }
 
@@ -344,8 +663,8 @@ void chooseWhatToDo() {
     int column;
     int newValue;
 
-    //printf("\n");
-    //printListInOrder(head);
+    printf("\n");
+    printListInOrder(head);
 
     //Imprimir a matriz sempre que o menu for exibido
     printMatrixFromList();
@@ -436,7 +755,7 @@ void chooseWhatToDo() {
             break;
         case 6:
             //Cálculo da soma máxima possível
-            assingmentProblem();
+            assingmentProblem(maxRow, maxColumn);
             break;
         case 7:
             //Sair do programa
