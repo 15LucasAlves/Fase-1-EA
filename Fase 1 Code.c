@@ -44,6 +44,7 @@ typedef struct Node {
     int dataCalc;
     bool crossed;
     bool doubleCrossed;
+    bool isOptimal;
 
     struct Node* next;
 } Node;
@@ -114,8 +115,8 @@ void printListInOrder(Node* node) {
     //Basicamente, chama continuamente a função para o proximo node até que o node seja NULL
     //Quando o node for NULL, a função retornará para o node anterior e imprimirá o valor do node
     printListInOrder(node->next);
-    printf("Data: %d, Column: %d, Row: %d, DataCalc:%d, isCrossed:%d ,isdoubleCrossed:%d\n", node->data, node->column, node->row, node->dataCalc, node->crossed, node->doubleCrossed);
-}
+    printf("Data: %d, Column: %d, Row: %d, DataCalc:%d, isCrossed:%d ,isdoubleCrossed:%d, isOptimal:%d\n", node->data, node->column, node->row, node->dataCalc, node->crossed, node->doubleCrossed, node->isOptimal);
+    }
 
 
 //Variaveis para armazenar o número máximo de linhas e colunas
@@ -625,6 +626,75 @@ void subtractAndAddMin(){
 }
 
 
+//Função para selecionar os zeros para encontrar a soma máxima possível
+void selectZeros(int optimalZeros){
+
+    
+
+    Node *temp = head;
+    int optimalZerosFound = 0;
+    int rowTemp;
+
+    while(temp != NULL){
+        temp->isOptimal = false;
+        temp->crossed = false;
+        temp = temp->next;
+    }
+
+    while(optimalZerosFound != optimalZeros){
+        Node *temp = head;
+        Node *previous = NULL;
+        Node *optimalCandidate = NULL;
+        int numberOfZerosOnRow = 0;
+
+        //Percorrer a linked list até encontrar uma linha com apenas um zero
+        while(temp != NULL){
+            //Se o node atual for um zero e não foi cortado
+            if(temp->dataCalc == 0 && temp->crossed == false){
+                optimalCandidate = temp;
+                numberOfZerosOnRow++;
+            }
+
+            previous = temp;
+            temp = temp->next;
+
+            if(temp == NULL){
+                rowTemp = -1;
+            }else{
+                rowTemp = temp->row;
+            }
+            
+            //Se o node atual for de outra linha que o node anterior, verificar se a linha tem apenas um zero
+            if(previous->row != rowTemp){                   
+                
+                //Se a linha tiver apenas um zero
+                if(numberOfZerosOnRow == 1){
+
+                    //printf("numberOfZerosOnRow: %d - numberOfZerosOnRow: %d - optimalCandidateRow: %d - optimalCandidateColum: %d\n", numberOfZerosOnRow, numberOfZerosOnRow, optimalCandidate->row , optimalCandidate->column);
+                    //scanf("%d");
+
+                    //Marcar o zero como ótimo
+                    optimalCandidate->isOptimal = true;
+                    optimalZerosFound++;
+
+                    //Cortar todos os outros numeros na linha e coluna do zero ótimo
+                    Node *clean = head;
+                    while (clean != NULL){
+                        if(clean->row == optimalCandidate->row || clean->column == optimalCandidate->column){
+                            clean->crossed = true;
+                        }
+                        clean = clean->next;
+                  
+                    }
+                    printListInOrder(head);
+                }
+                numberOfZerosOnRow = 0;
+            }          
+       }
+    }
+}
+
+
 //Função do assingment problem
 void assingmentProblem(int maxRow, int maxColumn){
     //https://cbom.atozmath.com/example/CBOM/Assignment.aspx?q=hm&q1=MAX
@@ -648,13 +718,6 @@ void assingmentProblem(int maxRow, int maxColumn){
    
     int numberOfCuts = 0;
     int cutsNeeded = 0;
-
-    if(maxRow >= maxColumn){
-        cutsNeeded = maxRow + 1;
-    }
-    else if(maxColumn > maxRow){
-        cutsNeeded = maxColumn + 1;
-    }
 
     //Se o número de linhas for diferente do número de colunas, adicionar linhas ou colunas com valores Nulos no final da matriz
     //Para que o número de linhas seja igual ao número de colunas
@@ -713,7 +776,11 @@ void assingmentProblem(int maxRow, int maxColumn){
             maxRow = maxColumn;
         }
     }
-    
+
+    printMatrixFromList();
+    scanf("%d");   
+    cutsNeeded = maxRow + 1;
+
     equalizeDataCalcToData();
 
     int maxValue = findMaxValue();
@@ -725,8 +792,20 @@ void assingmentProblem(int maxRow, int maxColumn){
     while (numberOfCuts != cutsNeeded){
         numberOfCuts = findZeros();
         subtractAndAddMin();
-        printf("FIM numberOfCuts: %d\n", numberOfCuts);
     } 
+
+    selectZeros(cutsNeeded);
+
+    int somaMaxima = 0;
+    //Imprimir os numeros da soma máxima possível
+    Node *temp = head;
+    while(temp != NULL){
+        if(temp->isOptimal == true){
+            somaMaxima += temp->data;
+            printf("Valor: %d\n", temp->data);
+        }
+        temp = temp->next;
+    }
 }
 
 //Função para escolher o que fazer
