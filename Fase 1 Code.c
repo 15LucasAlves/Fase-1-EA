@@ -645,8 +645,75 @@ void assingmentProblem(int maxRow, int maxColumn){
     7. Repetir os passos 4, 5 e 6 até que o número de cortes seja igual ao número de linhas
     8. O resultado final é a soma dos valores da matriz que estão na mesma linha ou coluna que o valor 0
     */
+   
     int numberOfCuts = 0;
+    int cutsNeeded = 0;
 
+    if(maxRow >= maxColumn){
+        cutsNeeded = maxRow + 1;
+    }
+    else if(maxColumn > maxRow){
+        cutsNeeded = maxColumn + 1;
+    }
+
+    //Se o número de linhas for diferente do número de colunas, adicionar linhas ou colunas com valores Nulos no final da matriz
+    //Para que o número de linhas seja igual ao número de colunas
+    if (maxRow != maxColumn)
+    {
+        //Se o número de linhas for maior que o número de colunas, adicionar colunas com valores Nulos
+        if (maxRow > maxColumn)
+        {
+            //i < (maxRow - maxColumn) para adicionar o número de colunas necessárias para que o número de linhas seja igual ao número de colunas
+            for (int i = 0; i < (maxRow - maxColumn); i++)
+            {   
+                //j <= maxRow para adicionar o número de elementos necessarios para que o número de elementos na nova row seja igual ao número de elementos nas colunas existentes
+                for (int j = 0; j <= maxRow; j++)
+                {
+                    //Alocar espaço para o novo node
+                    Node *newNode = (Node*) malloc(sizeof(Node));
+
+                    //Atribuir os valores ao novo node
+                    newNode->data = 0; //Numero 
+                    newNode->column = maxColumn + i + 1; //Coluna
+                    newNode->row = j; //Linha
+                    newNode->dataCalc = 0; //Valor calculado para o problema de atribuição
+                    newNode->crossed = false; //Variavel para verificar se o node foi cortado
+                    newNode->doubleCrossed = false; //Variavel para verificar se o node foi cortado duas vezes
+                    newNode->next = head; //Apontar para o proximo node
+                    head = newNode; //Atualizar a head para apontar para o novo node
+                }
+            }
+            //Quando o número de colunas for igual ao número de linhas, atualize o número máximo de colunas
+            maxColumn = maxRow;
+        }
+        //Se o número de colunas for maior que o número de linhas, adicionar linhas com valores Nulos
+        else if (maxColumn > maxRow)
+        {
+            //i < (maxColumn - maxRow) para adicionar o número de linhas necessárias para que o número de linhas seja igual ao número de colunas
+            for (int i = 0; i < (maxColumn - maxRow); i++)
+            {
+                //j <= maxColumn para adicionar o número de elementos necessarios para que o número de elementos na nova coluna seja igual ao número de elementos nas colunas existentes
+                for (int j = 0; j <= maxColumn; j++)
+                {
+                    //Alocar espaço para o novo node
+                    Node *newNode = (Node*) malloc(sizeof(Node));
+
+                    //Atribuir os valores ao novo node
+                    newNode->data = 0; //Numero 
+                    newNode->column = j; //Coluna
+                    newNode->row = maxRow + i + 1; //Linha
+                    newNode->dataCalc = 0; //Valor calculado para o problema de atribuição
+                    newNode->crossed = false; //Variavel para verificar se o node foi cortado
+                    newNode->doubleCrossed = false; //Variavel para verificar se o node foi cortado duas vezes
+                    newNode->next = head; //Apontar para o proximo node
+                    head = newNode; //Atualizar a head para apontar para o novo node
+                }
+            }
+            //Quando o número de linhas for igual ao número de colunas, atualize o número máximo de linhas
+            maxRow = maxColumn;
+        }
+    }
+    
     equalizeDataCalcToData();
 
     int maxValue = findMaxValue();
@@ -654,17 +721,12 @@ void assingmentProblem(int maxRow, int maxColumn){
     subtractValueFromAll(maxValue);
     subtractMinFromRow(maxRow);
     subtractMinFromColumn(maxColumn);
-
-    //do
     
-    while (numberOfCuts != maxRow+1){
+    while (numberOfCuts != cutsNeeded){
         numberOfCuts = findZeros();
         subtractAndAddMin();
         printf("FIM numberOfCuts: %d\n", numberOfCuts);
-
     } 
-     
-
 }
 
 //Função para escolher o que fazer
@@ -699,14 +761,14 @@ void chooseWhatToDo() {
             //Perguntar ao utilizador qual valor ele quer trocar e qual valor ele quer atribuir
             printf("Linha: ");
             scanf("%d", &row);
-            if (row > maxRow || row < 1){
+            if (row - 1 > maxRow || row < 1){
                 printf("Linha inválida.\n");
                 break;
             }
 
             printf("Coluna: ");
             scanf("%d", &column);
-            if (column > maxColumn || column < 1){
+            if (column - 1> maxColumn || column < 1){
                 printf("Coluna inválida.\n");
                 break;
             }
@@ -723,7 +785,9 @@ void chooseWhatToDo() {
             printf("Escolha a linha que deseja adicionar: ");
             scanf("%d", &row);
 
-            if (row > maxRow + 1 || row < 1)
+            //Row - 1 porque o utilizador começa a contar a partir de 1, mas o programa começa a contar a partir de 0
+            //Row + 1 para poder adicionar uma linha após a última linha
+            if (row - 1 > maxRow + 1 || row < 1)
             {
                 printf("Linha inválida.\n");
                 break;
@@ -735,7 +799,9 @@ void chooseWhatToDo() {
             printf("Escolha a coluna que deseja adicionar: ");
             scanf("%d", &column);
 
-            if (column > maxColumn + 1 || column < 1)
+            //Column - 1 porque o utilizador começa a contar a partir de 1, mas o programa começa a contar a partir de 0
+            //Column + 1 para poder adicionar uma coluna após a última coluna
+            if (column - 1 > maxColumn + 1 || column < 1)
             {
                 printf("Coluna inválida.\n");
                 break;
