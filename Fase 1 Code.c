@@ -577,7 +577,6 @@ int findZeros(){
 
         if (maxZerosFound > 0)
             numberOfCuts++;
-     
 
     //Repetir até que todos os zeros estejam cortados
     }while(maxZerosFound != 0);
@@ -793,8 +792,9 @@ void assingmentProblem(int maxRow, int maxColumn){
         numberOfCuts = findZeros();
         subtractAndAddMin();
     } 
-
-    selectZeros(cutsNeeded);
+        numberOfCuts = findZeros();
+ 
+     selectZeros(cutsNeeded);
 
     int somaMaxima = 0;
     //Imprimir os numeros da soma máxima possível
@@ -806,6 +806,7 @@ void assingmentProblem(int maxRow, int maxColumn){
         }
         temp = temp->next;
     }
+    printf("Soma máxima possível: %d\n", somaMaxima);
 }
 
 //Função para escolher o que fazer
