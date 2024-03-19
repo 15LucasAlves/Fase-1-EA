@@ -478,7 +478,8 @@ void subtractMinFromColumn(int maxColumn){
 //Função para percorrer as linhas e colunas para encontrar zeros
 int findZeros(){
     Node *temp;
-    int zerosFound;
+    int newZerosFound;
+    int zerosFound = 0;
     int maxZerosFound = 0;
     int index = -1;
     bool inRow = true;
@@ -500,12 +501,16 @@ int findZeros(){
         for (int i = 0; i <= maxRow; i++)
         {
             //Reinicar variaveis
+            newZerosFound = 0;
             zerosFound = 0;
             temp = head;
 
             while (temp != NULL){
                 if (temp->row == i){
-                    if (temp->dataCalc == 0 && !temp->crossed){
+                    if (temp->dataCalc == 0 && temp->crossed == false){
+                        newZerosFound++;
+                        zerosFound++;
+                    }else if (temp->dataCalc == 0){
                         zerosFound++;
                     }
                 }
@@ -514,7 +519,7 @@ int findZeros(){
 
             //Se o número de zeros encontrados for maior que o número máximo de zeros encontrados, 
             //atualize o número máximo de zeros encontrados e o índice da linha
-            if (zerosFound > maxZerosFound){
+            if (zerosFound > maxZerosFound && newZerosFound != 0){
                 maxZerosFound = zerosFound;
                 index = i;
                 inRow = true;
@@ -524,12 +529,16 @@ int findZeros(){
         for (int i = 0; i <= maxColumn; i++)
         {
             //Reinicar variaveis
+            newZerosFound = 0;
             zerosFound = 0;
             temp = head;
 
             while (temp != NULL){
                 if (temp->column == i){
                     if (temp->dataCalc == 0 && !temp->crossed){
+                        newZerosFound++;
+                        zerosFound++;
+                    }else if (temp->dataCalc == 0){
                         zerosFound++;
                     }
                 }
@@ -538,42 +547,42 @@ int findZeros(){
 
             //Se o número de zeros encontrados for maior que o número máximo de zeros encontrados, 
             //atualize o número máximo de zeros encontrados e o índice da coluna
-            if (zerosFound > maxZerosFound){
+            if (zerosFound >= maxZerosFound && newZerosFound != 0){
                 maxZerosFound = zerosFound;
                 index = i;
                 inRow = false;
             }
         }
 
-       if (index != -1)
-       {
-            temp = head;
-            while(temp != NULL){
-                //Se o maior numero de zeros for em linha
-                if(inRow){
-                    //Se o node atual for da linha com mais zeros, cortar o node
-                    if(temp->row == index){
-                        //Se o node já foi cortado, cortar novamente
-                        if (temp->crossed == true)
-                            temp->doubleCrossed = true;
-                        else
-                            temp->crossed = true;
-                    }        
-                }
-                //Se o maior numero de zeros for em coluna
-                else{
-                    //Se o node atual for da coluna com mais zeros, cortar o node
-                    if(temp->column == index){
-                        //Se o node já foi cortado, cortar novamente
-                        if (temp->crossed == true)
-                            temp->doubleCrossed = true;
-                        else
-                            temp->crossed = true;
+        if (index != -1)
+        {
+                temp = head;
+                while(temp != NULL){
+                    //Se o maior numero de zeros for em linha
+                    if(inRow){
+                        //Se o node atual for da linha com mais zeros, cortar o node
+                        if(temp->row == index){
+                            //Se o node já foi cortado, cortar novamente
+                            if (temp->crossed == true)
+                                temp->doubleCrossed = true;
+                            else
+                                temp->crossed = true;
+                        }        
                     }
+                    //Se o maior numero de zeros for em coluna
+                    else{
+                        //Se o node atual for da coluna com mais zeros, cortar o node
+                        if(temp->column == index){
+                            //Se o node já foi cortado, cortar novamente
+                            if (temp->crossed == true)
+                                temp->doubleCrossed = true;
+                            else
+                                temp->crossed = true;
+                        }
+                    }
+                    temp = temp->next;   
                 }
-                temp = temp->next;   
             }
-        }
 
         if (maxZerosFound > 0)
             numberOfCuts++;
@@ -627,9 +636,6 @@ void subtractAndAddMin(){
 
 //Função para selecionar os zeros para encontrar a soma máxima possível
 void selectZeros(int optimalZeros){
-
-    
-
     Node *temp = head;
     int optimalZerosFound = 0;
     int rowTemp;
@@ -639,6 +645,8 @@ void selectZeros(int optimalZeros){
         temp->crossed = false;
         temp = temp->next;
     }
+
+    Node *lastOptimal = NULL;
 
     while(optimalZerosFound != optimalZeros){
         Node *temp = head;
@@ -667,11 +675,7 @@ void selectZeros(int optimalZeros){
             if(previous->row != rowTemp){                   
                 
                 //Se a linha tiver apenas um zero
-                if(numberOfZerosOnRow == 1){
-
-                    //printf("numberOfZerosOnRow: %d - numberOfZerosOnRow: %d - optimalCandidateRow: %d - optimalCandidateColum: %d\n", numberOfZerosOnRow, numberOfZerosOnRow, optimalCandidate->row , optimalCandidate->column);
-                    //scanf("%d");
-
+                if(numberOfZerosOnRow == 1 || lastOptimal == optimalCandidate && optimalCandidate != NULL){
                     //Marcar o zero como ótimo
                     optimalCandidate->isOptimal = true;
                     optimalZerosFound++;
@@ -685,11 +689,11 @@ void selectZeros(int optimalZeros){
                         clean = clean->next;
                   
                     }
-                    printListInOrder(head);
                 }
                 numberOfZerosOnRow = 0;
-            }          
-       }
+            } 
+            lastOptimal = optimalCandidate; 
+        }    
     }
 }
 
@@ -776,8 +780,6 @@ void assingmentProblem(int maxRow, int maxColumn){
         }
     }
 
-    printMatrixFromList();
-    scanf("%d");   
     cutsNeeded = maxRow + 1;
 
     equalizeDataCalcToData();
@@ -792,9 +794,8 @@ void assingmentProblem(int maxRow, int maxColumn){
         numberOfCuts = findZeros();
         subtractAndAddMin();
     } 
-        numberOfCuts = findZeros();
- 
-     selectZeros(cutsNeeded);
+
+    selectZeros(cutsNeeded);
 
     int somaMaxima = 0;
     //Imprimir os numeros da soma máxima possível
@@ -816,8 +817,8 @@ void chooseWhatToDo() {
     int column;
     int newValue;
 
-    printf("\n");
-    printListInOrder(head);
+    //printf("\n");
+    //printListInOrder(head);
 
     //Imprimir a matriz sempre que o menu for exibido
     printMatrixFromList();
