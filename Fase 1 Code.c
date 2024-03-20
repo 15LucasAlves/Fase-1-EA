@@ -184,7 +184,7 @@ void addRow(int maxColumn, int maxRow, int rowIndex) {
     int newValueForNewLine;
     Node *temp = head;
 
-    //Perguntar ao usuario quais valores ele deseja adicionar à nova linha e adicionar os valores à linked list
+    //Perguntar ao utilizador quais valores ele deseja adicionar à nova linha e adicionar os valores à linked list
     for  (int i = 0; i <= maxColumn; i++) {
         printf("Indique o %dº valor da nova linha: ", (i+1));
         scanf("%d", &newValueForNewLine);
@@ -221,7 +221,7 @@ void addColumn(int maxColumn, int maxRow, int columnIndex) {
     int newValueForNewColumn;
     Node *temp = head;
     
-    //Perguntar ao usuario quais valores ele deseja adicionar à nova coluna e adicionar os valores à linked list
+    //Perguntar ao utilizador quais valores ele deseja adicionar à nova coluna e adicionar os valores à linked list
     for  (int i = 0; i <= maxRow; i++) {
         printf("Indique o %dº valor da nova coluna: ", (i+1));
         scanf("%d", &newValueForNewColumn);
@@ -493,11 +493,13 @@ int findZeros(){
         temp = temp->next;
     }
 
+    //Percorrer a linked list para encontrar o maior número de zeros em uma linha ou coluna
     do{    
         maxZerosFound = 0;
         index = -1;
         inRow = true;
 
+        //Percorrer as linhas
         for (int i = 0; i <= maxRow; i++)
         {
             //Reinicar variaveis
@@ -526,6 +528,7 @@ int findZeros(){
             }
         }
 
+        //Percorrer as colunas
         for (int i = 0; i <= maxColumn; i++)
         {
             //Reinicar variaveis
@@ -647,13 +650,13 @@ void selectZeros(int optimalZeros){
     }
 
     Node *lastOptimal = NULL;
-
+    
     while(optimalZerosFound != optimalZeros){
         Node *temp = head;
         Node *previous = NULL;
         Node *optimalCandidate = NULL;
         int numberOfZerosOnRow = 0;
-
+        
         //Percorrer a linked list até encontrar uma linha com apenas um zero
         while(temp != NULL){
             //Se o node atual for um zero e não foi cortado
@@ -675,7 +678,7 @@ void selectZeros(int optimalZeros){
             if(previous->row != rowTemp){                   
                 
                 //Se a linha tiver apenas um zero
-                if(numberOfZerosOnRow == 1 || lastOptimal == optimalCandidate && optimalCandidate != NULL){
+                if(numberOfZerosOnRow == 1 || (lastOptimal == optimalCandidate && optimalCandidate != NULL)){
                     //Marcar o zero como ótimo
                     optimalCandidate->isOptimal = true;
                     optimalZerosFound++;
@@ -687,12 +690,11 @@ void selectZeros(int optimalZeros){
                             clean->crossed = true;
                         }
                         clean = clean->next;
-                  
                     }
                 }
                 numberOfZerosOnRow = 0;
-            } 
-            lastOptimal = optimalCandidate; 
+            }
+            lastOptimal = optimalCandidate;
         }    
     }
 }
@@ -791,11 +793,14 @@ void assingmentProblem(int maxRow, int maxColumn){
     subtractMinFromColumn(maxColumn);
     
     while (numberOfCuts != cutsNeeded){
+        printListInOrder(head);
         numberOfCuts = findZeros();
         subtractAndAddMin();
     } 
 
-    selectZeros(cutsNeeded);
+    printListInOrder(head);
+    //selectZeros(cutsNeeded);
+    
 
     int somaMaxima = 0;
     //Imprimir os numeros da soma máxima possível
